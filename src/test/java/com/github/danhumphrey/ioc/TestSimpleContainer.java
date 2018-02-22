@@ -51,4 +51,45 @@ class TestSimpleContainer {
 		container.register("someRandomName", "This is a String");
 		Assert.assertTrue("Expecting hasNamedEntry to return false when entry has been registered with a different name", container.hasNamedEntry("someRandomName"));
 	}
+	
+	@Test
+	public void testRegisterOverwritesAnExistingEntry() {
+		container.register("Dan");
+		Assert.assertEquals("Expecting resolved entry to equal Dan", "Dan", container.resolve(String.class));
+		container.register("Humphrey");
+		Assert.assertEquals("Expecting resolved entry to equal Humphrey", "Humphrey", container.resolve(String.class));
+	}
+	
+	
+	@Test
+	public void testResolveByType() {
+		container.register(15);
+		Assert.assertEquals("Expecting resolved entry to equal 15", (Integer)15, (Integer)container.resolve(Integer.class));
+	}
+
+	
+	@Test
+	public void testRegisterAndResolveByName() {
+		container.register("forename", "Dan");
+		container.register("age", 41);
+		
+		Assert.assertEquals("Expecting resolved entry to equal Dan", "Dan", container.resolve("forename"));
+		Assert.assertEquals("Expecting resolved entry to equal 41", (Integer)41, container.resolve("age"));
+	}
+	
+	@Test
+	public void testResolveByComplexType() {
+		container.register(new MyComplexClass("Dan"));
+		Assert.assertEquals("Expecting complex type to be resolved and usable", "My name is Dan", container.resolve(MyComplexClass.class).toString());
+	}
+	
+	@Test
+	public void testResolveComplexTypeByName() {
+		container.register("forename greeter", new MyComplexClass("Dan"));
+		container.register("surname greeter", new MyComplexClass("Humphrey"));
+		Assert.assertEquals("Expecting complex type to be resolved and usable", "My name is Dan", container.resolve("forename greeter").toString());
+		Assert.assertEquals("Expecting complex type to be resolved and usable", "My name is Humphrey", container.resolve("surname greeter").toString());
+	}
+
+
 }
