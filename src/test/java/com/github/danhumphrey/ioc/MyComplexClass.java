@@ -1,6 +1,6 @@
 package com.github.danhumphrey.ioc;
 
-public class MyComplexClass{
+public class MyComplexClass implements MyTestInterface{
 
 	private String name;
 
@@ -11,6 +11,11 @@ public class MyComplexClass{
 	@Override
 	public String toString() {
 		return "My name is " + this.name;
+	}
+
+	@Override
+	public boolean someInterfaceMethod() {
+		return false;
 	}
 }
 

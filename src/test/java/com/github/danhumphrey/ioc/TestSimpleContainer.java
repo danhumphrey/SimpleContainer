@@ -1,5 +1,9 @@
 package com.github.danhumphrey.ioc;
 
+import static org.junit.Assert.fail;
+
+import javax.swing.Icon;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -90,6 +94,56 @@ class TestSimpleContainer {
 		Assert.assertEquals("Expecting complex type to be resolved and usable", "My name is Dan", container.resolve("forename greeter").toString());
 		Assert.assertEquals("Expecting complex type to be resolved and usable", "My name is Humphrey", container.resolve("surname greeter").toString());
 	}
+	
+	@Test
+	public void testResolveByNameWithNoMatchingEntryReturnsNull() {
+		Object a  = container.resolve("Uh oh");
+		Assert.assertNull("Expecting resolve to return null when matching entry is not found", a);
+	}
+	
+	@Test
+	public void testRemoveEntryByType() {
+		container.register(new MyComplexClass("Dan"));
+		container.remove(MyComplexClass.class);
+		Assert.assertNull("Expecting resolve to return null after entry removed", container.resolve(MyComplexClass.class));
+	} 
+
+	@Test
+	public void testRemoveEntryByName() {
+		container.register("forename", "Dan");
+		container.remove("forename");
+		Assert.assertNull("Expecting resolve to return null after entry removed", container.resolve("forename"));
+	}
+	
+	@Test 
+	public void testRegisterAsTypeThrowsIllegalArgumentExceptionWhenEntryDoesNotExtendOrImplementType() {
+		try {
+			container.registerAs(new MyComplexClass("Dan"), Icon.class);
+		}catch(IllegalArgumentException ex) {
+			return;
+		}
+		fail("IllegalArgumentException not thrown when expected");
+	}
+
+	@Test 
+	public void testHasEntryAfterRegisterAsType() {
+		container.registerAs(new MyComplexClass("Dan"),MyTestInterface.class);
+		Assert.assertTrue("Expecting true when matching entry has been registered as type", container.hasEntry(MyTestInterface.class));
+	}
+	
+	@Test 
+	public void testResolveAfterRegisterAsType() {
+		container.registerAs(new MyComplexClass("Dan"),MyTestInterface.class);
+		Assert.assertEquals("Expecting complex type to be resolved and usable", "My name is Dan", container.resolve(MyTestInterface.class).toString());
+	}
+	
+	@Test
+	public void testRemoveEntryByTypeAfterRegisterAs() {
+		container.registerAs(new MyComplexClass("Dan"), MyTestInterface.class);
+		container.remove(MyTestInterface.class);
+		Assert.assertNull("Expecting resolve to return null after entry removed", container.resolve(MyComplexClass.class));
+		Assert.assertNull("Expecting resolve to return null after entry removed", container.resolve(MyTestInterface.class));
+	} 
 
 
 }
